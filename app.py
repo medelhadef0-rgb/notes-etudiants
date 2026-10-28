@@ -1,4 +1,5 @@
 #Application de consultation des notes des étudiants
+from auth import utilisateur_connecte
 import os
 import sqlite3
 from flask import Flask, jsonify, request
@@ -48,3 +49,54 @@ def lister_notes():
     )
 if __name__ == "__main__":
     app.run(host=os.environ.get("APP_HOST", "127.0.0.1"), port=5000)
+    
+@app.route("/notes/<note_id>", methods=["PUT"])
+def modifier_note(note_id):
+    utilisateur = utilisateur_connecte()
+
+    # S2 : authentification
+    if utilisateur is None:
+        return {"erreur": "Authentification requise"}, 401
+
+    # S3 : seuls les enseignants peuvent modifier
+    if utilisateur.get("role") != "enseignant":
+        return {"erreur": "Accès interdit"}, 403
+
+    # Lire et valider les données JSON
+    donnees = request.get_json(silent=True)
+
+    if not isinstance(donnees, dict):
+        return {"erreur": "Données invalides"}, 400
+
+    note = donnees.get("note")
+
+    # S5 : validation de la note
+    if (
+        isinstance(note, bool)
+        or not isinstance(note, (int, float))
+        or not 0 <= note <= 20
+    ):
+        return {"erreur": "Note invalide"}, 400
+
+    try:
+        con = sqlite3.connect(DB)
+        try:
+            # Adapter cette requête à la structure de la base
+            curseur = con.execute(
+                "UPDATE notes SET note = ? WHERE id = ?",
+                (note, note_id)
+            )
+
+            if curseur.rowcount == 0:
+                con.rollback()
+                return {"erreur": "Note introuvable"}, 404
+
+            con.commit()
+            return {"message": "Note modifiée"}, 200
+
+        finally:
+            con.close()
+
+    except sqlite3.Error:
+        app.logger.exception("Erreur lors de la modification d'une note")
+        return {"erreur": "Erreur interne"}, 500
