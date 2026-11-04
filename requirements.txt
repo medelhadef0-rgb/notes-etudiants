@@ -1,0 +1,2 @@
+#Outils nécessaires au fonctionnement de l'application
+flask==3.1.3

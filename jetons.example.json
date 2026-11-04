@@ -1,0 +1,8 @@
+{
+ "jeton-prof-devsecops":
+ {"nom": "Pr. Alami", "role": "enseignant", "module": "DevSecOps"},
+ "jeton-prof-java":
+ {"nom": "Pr. Bennani", "role": "enseignant", "module": "Java"},
+ "jeton-amina":
+ {"nom": "Amina", "role": "etudiant", "module": null}
+}
