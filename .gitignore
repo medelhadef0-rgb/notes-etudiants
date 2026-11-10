@@ -1,0 +1,8 @@
+# Éléments à ne pas partager sur GitHub
+.venv/
+# Fichiers temporaires
+pycache
+# Registre des notes
+*.db
+# Réglages propres à ce poste
+.env 
